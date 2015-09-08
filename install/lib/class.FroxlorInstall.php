@@ -64,16 +64,17 @@ class FroxlorInstall {
 	 * supported languages for install
 	 */
 	private $_languages = array(
-			'german' => 'Deutsch',
 			'english' => 'English',
-			'french' => 'Français'
+			'german' => 'Deutsch',
+			'french' => 'Français',
+			'russian' => 'Русский'
 	);
 
 	/**
 	 * currently used language
 	 * @var unknown
 	*/
-	private $_activelng = 'english';
+	private $_activelng = 'russian';
 
 	/**
 	 * Class constructor
