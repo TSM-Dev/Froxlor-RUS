@@ -1,60 +1,61 @@
-# Froxlor
+# Froxlor - Русский
 
-The server administration software for your needs.
-Developed by experienced server administrators, this panel simplifies the effort of managing your hosting platform.
+Панель управления для сервера.
+Разработана админами для админов. Имеет хостинговый функционал.
 
-## Installation
+## Уcтановка
 
-### Fast install
-1. Ensure that your webserver serves /var/www
-2. Extract froxlor into /var/www
-3. Point your browser to http://[ip-of-webserver]/froxlor
-4. Follow the installer
-5. Login as administrator
-6. Adjust "Server > Settings" according to your needs
-7. Choose your distribution under "Server > Configuration"
-8. Follow the steps for your services
-9. Have fun!
+### Быстрая установка
+1. Проверьте, что вебсервер использует /var/www
+2. Распакуйте Froxlor в папку /var/www
+3. Перейдите по адресу http://[тут ip/dns Вашего сервера]/froxlor
+4. Выполните установку по шагам при помощи установщика
+5. Авторизуйтесь в Froxlor через учетную запись Админа
+6. Настройте "Сервер > Настройки" так, как желаете
+7. Выберите Ваш дистрибутив ОС в "Сервер > Конфигурация"
+8. Продолжите настройку по шагам.
+9. Пользуйтесь и радуйтесь! P.S> Не забудьте поставить звезду на GitHub :wink:
 
-### Detailed installation
+### Детальная установка
 http://redmine.froxlor.org/projects/froxlor/wiki/Installationtarball
 
-## Help
+## Помощь
 
-You may find help in the following places:
+Если Вам нужна помощь, воспользуйтесь ресурсами ниже:
 
 ### IRC
 
-froxlor may be found on freenode.net, channel #froxlor:
+Froxlor можно найти на freenode.net, канал #froxlor:
 irc://chat.freenode.net/froxlor
 
-### Forum
+### Форум
 
-The community is located on http://forum.froxlor.org
+Сообщество Froxlor: http://forum.froxlor.org/
 
 ### Wiki
 
-More documentation may be found in the froxlor - wiki:
+Больше документации можно найти в Froxlor - Wiki:
 http://redmine.froxlor.org/projects/froxlor/wiki
 
-## License
+## Лицензия
 
-May be found in COPYING
+Лицензия проекта содержится в файле COPYING
 
-## Downloads
+## Загрузки
+###### [ оригинальные файлы, без Русской локализации ]
 
 ### Tarball
 http://files.froxlor.org/releases/froxlor-latest.tar.gz [MD5](http://files.froxlor.org/releases/froxlor-latest.tar.gz.md5) [SHA1](http://files.froxlor.org/releases/froxlor-latest.tar.gz.sha1)
 
-### Debian repository
+### Репозиторий Debian
 
-[HowTo](http://redmine.froxlor.org/projects/froxlor/wiki/Installationdebian)
+[Как устанавливать](http://redmine.froxlor.org/projects/froxlor/wiki/Installationdebian)
 
 /etc/apt/sources.list.d/froxlor.list
 > deb http://debian.froxlor.org [squeeze|wheezy] main
 
-### Gentoo repository
+### Репозиторий Gentoo
 
-[HowTo](http://redmine.froxlor.org/projects/froxlor/wiki/Installationgentoo)
+[Как устанавливать](http://redmine.froxlor.org/projects/froxlor/wiki/Installationgentoo)
 
 http://files.froxlor.org/gentoo/repositories.xml

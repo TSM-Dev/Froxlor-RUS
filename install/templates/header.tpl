@@ -7,7 +7,7 @@
 	<link href="templates/assets/css/install.css" rel="stylesheet" type="text/css" />
 	<!--[if IE]><link rel="stylesheet" href="../templates/{$theme}/css/main_ie.css" type="text/css" /><![endif]-->
 	<link href="templates/assets/img/favicon.ico" rel="icon" type="image/x-icon" />
-	<title>Froxlor Server Management Panel - Installation</title>
+	<title>Froxlor серверная ПУ - Установка</title>
 </head>
 <body>
 	<div class="installsec">
