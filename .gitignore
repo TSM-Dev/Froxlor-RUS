@@ -1,8 +1,8 @@
-templates/*
 logs/*
 install/update.log
 .buildpath
 .project
+.idea
 .settings/
 *.diff
 *~
