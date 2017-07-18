@@ -259,7 +259,6 @@ $lng['admin']['admin_edit'] = 'Bewerk beheerder';
 $lng['admin']['customers_see_all'] = 'Kan alle klanten zien?';
 $lng['admin']['domains_see_all'] = 'Kan alle domeinen zien?';
 $lng['admin']['change_serversettings'] = 'Kan server instellingen aanpassen?';
-$lng['admin']['server'] = 'Server';
 $lng['admin']['serversettings'] = 'Instellingen';
 $lng['admin']['rebuildconf'] = 'Configuratie bestanden opnieuw aanmaken';
 $lng['admin']['stdsubdomain'] = 'Standaard subdomein';
@@ -311,8 +310,6 @@ $lng['serversettings']['bindconf_directory']['title'] = 'Bind configuratie map';
 $lng['serversettings']['bindconf_directory']['description'] = 'Waar staan de bind configuratie bestanden?';
 $lng['serversettings']['bindreload_command']['title'] = 'Bind reload commando';
 $lng['serversettings']['bindreload_command']['description'] = 'Wat is het command om bind te herladen?';
-$lng['serversettings']['binddefaultzone']['title'] = 'Bind default zone';
-$lng['serversettings']['binddefaultzone']['description'] = 'Wat is de naam van de default zone?';
 $lng['serversettings']['vmail_uid']['title'] = 'Mails-Uid';
 $lng['serversettings']['vmail_uid']['description'] = 'Welk UserID moeten de e-mails hebben?';
 $lng['serversettings']['vmail_gid']['title'] = 'Mails-Gid';
@@ -397,7 +394,7 @@ $lng['serversettings']['defaultip']['title'] = 'Standaard IP/Poort';
 $lng['serversettings']['defaultip']['description'] = 'Wat is de standaard IP/Poort combinatie?';
 $lng['domains']['statstics'] = 'Gebruiks Statistieken';
 $lng['panel']['ascending'] = 'oplopend';
-$lng['panel']['decending'] = 'aflopend';
+$lng['panel']['descending'] = 'aflopend';
 $lng['panel']['search'] = 'Zoeken';
 $lng['panel']['used'] = 'gebruikt';
 
@@ -689,10 +686,12 @@ $lng['serversettings']['logger']['types']['title'] = 'Log-type(s)';
 $lng['serversettings']['logger']['types']['description'] = 'Om meerdere types te selecteren, houd u CTRL ingedrukt terwijl u selecteert.<br />Beschikbare types zijn: syslog, bestand, mysql';
 $lng['serversettings']['logger']['logfile'] = 'Pad naar logfile, inclusief bestandsnaam';
 $lng['error']['logerror'] = 'Log-Fout: %s';
-$lng['serversettings']['logger']['logcron'] = 'Cronjobs loggen (eenmalig)';
+$lng['serversettings']['logger']['logcron'] = 'Cronjobs loggen';
+$lng['serversettings']['logger']['logcronoption']['never'] = 'Nooit';
+$lng['serversettings']['logger']['logcronoption']['once'] = 'Eeenmalig';
+$lng['serversettings']['logger']['logcronoption']['always'] = 'Altijd';
 $lng['question']['logger_reallytruncate'] = 'Weet u zeker dat u de tabel "%s" wilt legen?';
 $lng['admin']['loggersystem'] = 'Systeemlog';
-$lng['menue']['logger']['logger'] = 'Systeemlog';
 $lng['logger']['date'] = 'Datum';
 $lng['logger']['type'] = 'Type';
 $lng['logger']['action'] = 'Actie';
@@ -1032,7 +1031,7 @@ $lng['dkim']['dkim_notes']['description'] = 'Notities die van belang kunnen zijn
 $lng['dkim']['dkim_add_adsp']['title'] = 'DKIM ADSP toevoegen';
 $lng['dkim']['dkim_add_adsp']['description'] = 'Indien u niet weet wat dit is, laat het op "actief" staan.';
 $lng['dkim']['dkim_add_adsppolicy']['title'] = 'ADSP beleid';
-$lng['dkim']['dkim_add_adsppolicy']['description'] = 'Voor meer informatie inzake deze instelling zie <a target="blank" href="http://redmine.froxlor.org/projects/froxlor/wiki/En-dkim-adsp-policies">DKIM ADSP policies</a>';
+$lng['dkim']['dkim_add_adsppolicy']['description'] = 'Voor meer informatie inzake deze instelling zie <a target="blank" href="https://en.wikipedia.org/wiki/Author_Domain_Signing_Practices">DKIM ADSP policies</a>';
 
 $lng['admin']['cron']['cronsettings'] = 'Instellingen cron-taken';
 $lng['cron']['cronname'] = 'naam cron-taak';
@@ -1147,7 +1146,7 @@ $lng['serversettings']['perl_path']['description'] = 'Alleen relevant voor light
 // ADDED IN FROXLOR 0.9.12-svn1
 $lng['admin']['fcgid_settings'] = 'FCGID';
 $lng['serversettings']['mod_fcgid_ownvhost']['title'] = 'FCGID inschakelen voor de VHost voor Froxlor';
-$lng['serversettings']['mod_fcgid_ownvhost']['description'] = 'Indien ingeschakeld wordt Froxlor ook uitgevoerd onder een lokale gebruiker<br /><strong>Let op:</strong>Dit vereist handmatige configuratie, zie <a target="blank" href="http://redmine.froxlor.org/projects/froxlor/wiki/HandbookApache2_fcgid">FCGID - handbook</a>';
+$lng['serversettings']['mod_fcgid_ownvhost']['description'] = 'Indien ingeschakeld wordt Froxlor ook uitgevoerd onder een lokale gebruiker<br /><strong>Let op:</strong>Dit vereist handmatige configuratie, zie <a target="blank" href="https://github.com/Froxlor/Froxlor/wiki/apache2-with-fcgid">FCGID - handbook</a>';
 $lng['admin']['mod_fcgid_user'] = 'Lokale gebruiker voor FCGID (Froxlor vhost)';
 $lng['admin']['mod_fcgid_group'] = 'Lokale groep voor FCGID (Froxlor vhost)';
 

@@ -19,10 +19,7 @@
 $baseLanguage = 'english.lng.php';
 
 // Check if we're in the CLI
-if(@php_sapi_name() != 'cli'
-   && @php_sapi_name() != 'cgi'
-   && @php_sapi_name() != 'cgi-fcgi'
-) {
+if(@php_sapi_name() !== 'cli') {
 	die('This script will only work in the shell.');
 }
 
@@ -56,7 +53,7 @@ if ($dh = opendir($path)) {
 } else {
 	print "ERROR: The path you requested cannot be read! \n ";
 	print "\n";
-	print_help();
+	print_help($argv);
 	exit;
 }
 
@@ -64,7 +61,7 @@ if ($dh = opendir($path)) {
 if (!isset($files[$baseLanguage])) {
 	print "ERROR: The baselanguage cannot be found! \n";
 	print "\n";
-	print_help();
+	print_help($argv);
 	exit;
 }
 

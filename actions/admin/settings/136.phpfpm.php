@@ -30,46 +30,12 @@ return array(
 					'plausibility_check_method' => 'checkFcgidPhpFpm',
 					'overview_option' => true
 					),
-				'system_phpfpm_enabled_ownvhost' => array(
-					'label' => $lng['phpfpm']['ownvhost'],
-					'settinggroup' => 'phpfpm',
-					'varname' => 'enabled_ownvhost',
-					'type' => 'bool',
-					'default' => false,
-					'save_method' => 'storeSettingField'
-					),
-				'system_phpfpm_httpuser' => array(
-					'label' => $lng['phpfpm']['vhost_httpuser'],
-					'settinggroup' => 'phpfpm',
-					'varname' => 'vhost_httpuser',
-					'type' => 'string',
-					'default' => 'froxlorlocal',
-					'save_method' => 'storeSettingWebserverFcgidFpmUser'
-					),
-				'system_phpfpm_httpgroup' => array(
-					'label' => $lng['phpfpm']['vhost_httpgroup'],
-					'settinggroup' => 'phpfpm',
-					'varname' => 'vhost_httpgroup',
-					'type' => 'string',
-					'default' => 'froxlorlocal',
-					'save_method' => 'storeSettingField'
-					),
 				'system_phpfpm_defaultini' => array(
 					'label' => $lng['serversettings']['mod_fcgid']['defaultini'],
 					'settinggroup' => 'phpfpm',
 					'varname' => 'defaultini',
 					'type' => 'option',
 					'default' => '1',
-					'option_mode' => 'one',
-					'option_options_method' => 'getPhpConfigs',
-					'save_method' => 'storeSettingField'
-					),
-				'system_phpfpm_defaultini_ownvhost' => array(
-					'label' => $lng['serversettings']['mod_fcgid']['defaultini_ownvhost'],
-					'settinggroup' => 'phpfpm',
-					'varname' => 'vhost_defaultini',
-					'type' => 'option',
-					'default' => '2',
 					'option_mode' => 'one',
 					'option_options_method' => 'getPhpConfigs',
 					'save_method' => 'storeSettingField'
@@ -192,6 +158,14 @@ return array(
 					'type' => 'bool',
 					'default' => false,
 					'visible' => Settings::Get('system.apache24'),
+					'save_method' => 'storeSettingField'
+					),
+				'system_nssextrausers' => array(
+					'label' => $lng['serversettings']['nssextrausers'],
+					'settinggroup' => 'system',
+					'varname' => 'nssextrausers',
+					'type' => 'bool',
+					'default' => false,
 					'save_method' => 'storeSettingField'
 					),
 				),

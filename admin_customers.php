@@ -84,6 +84,15 @@ if ($page == 'customers'
 				$domains = $domains_stmt->fetch(PDO::FETCH_ASSOC);
 				$row['domains'] = intval($domains['domains']);
 				$dec_places = Settings::Get('panel.decimal_places');
+
+				// get disk-space usages for web, mysql and mail
+				$usages_stmt = Database::prepare("SELECT * FROM `".TABLE_PANEL_DISKSPACE."` WHERE `customerid` = :cid ORDER BY `stamp` DESC LIMIT 1");
+				$usages = Database::pexecute_first($usages_stmt, array('cid' => $row['customerid']));
+
+				$row['webspace_used'] = round($usages['webspace'] / 1024, $dec_places);
+				$row['mailspace_used'] = round($usages['mail'] / 1024, $dec_places);
+				$row['dbspace_used'] = round($usages['mysql'] / 1024, $dec_places);
+
 				$row['traffic_used'] = round($row['traffic_used'] / (1024 * 1024), $dec_places);
 				$row['traffic'] = round($row['traffic'] / (1024 * 1024), $dec_places);
 				$row['diskspace_used'] = round($row['diskspace_used'] / 1024, $dec_places);
@@ -278,11 +287,13 @@ if ($page == 'customers'
 				Database::pexecute($stmt, array('id' => $id));
 				$stmt = Database::prepare("DELETE FROM `" . TABLE_PANEL_DATABASES . "` WHERE `customerid` = :id");
 				Database::pexecute($stmt, array('id' => $id));
-				// first gather all domain-id's to clean up panel_domaintoip accordingly
+				// first gather all domain-id's to clean up panel_domaintoip and dns-entries accordingly
 				$did_stmt = Database::prepare("SELECT `id` FROM `".TABLE_PANEL_DOMAINS."` WHERE `customerid` = :id");
 				Database::pexecute($did_stmt, array('id' => $id));
 				while ($row = $did_stmt->fetch(PDO::FETCH_ASSOC)) {
 					$stmt = Database::prepare("DELETE FROM `" . TABLE_DOMAINTOIP . "` WHERE `id_domain` = :did");
+					Database::pexecute($stmt, array('did' => $row['id']));
+					$stmt = Database::prepare("DELETE FROM `" . TABLE_DOMAIN_DNS . "` WHERE `domain_id` = :did");
 					Database::pexecute($stmt, array('did' => $row['id']));
 				}
 				$stmt = Database::prepare("DELETE FROM `" . TABLE_PANEL_DOMAINS . "` WHERE `customerid` = :id");
@@ -526,6 +537,11 @@ if ($page == 'customers'
 					$perlenabled = intval($_POST['perlenabled']);
 				}
 
+				$dnsenabled = 0;
+				if (isset($_POST['dnsenabled'])) {
+					$dnsenabled = intval($_POST['dnsenabled']);
+				}
+
 				$store_defaultindex = 0;
 				if (isset($_POST['store_defaultindex'])) {
 					$store_defaultindex = intval($_POST['store_defaultindex']);
@@ -554,7 +570,6 @@ if ($page == 'customers'
 				   || ($subdomains == '-1' && $userinfo['subdomains'] != '-1')
 				) {
 					standard_error('youcantallocatemorethanyouhave');
-					exit;
 				}
 
 				// Either $name and $firstname or the $company must be inserted
@@ -639,6 +654,10 @@ if ($page == 'customers'
 						$perlenabled = '1';
 					}
 
+					if ($dnsenabled != '0') {
+						$dnsenabled = '1';
+					}
+
 					if ($password == '') {
 						$password = generatePassword();
 					}
@@ -677,6 +696,7 @@ if ($page == 'customers'
 						'imap' => $email_imap,
 						'pop3' => $email_pop3,
 						'perlenabled' => $perlenabled,
+						'dnsenabled' => $dnsenabled,
 						'theme' => $_theme,
 						'custom_notes' => $custom_notes,
 						'custom_notes_show' => $custom_notes_show
@@ -716,6 +736,7 @@ if ($page == 'customers'
 						`imap` = :imap,
 						`pop3` = :pop3,
 						`perlenabled` = :perlenabled,
+						`dnsenabled` = :dnsenabled,
 						`theme` = :theme,
 						`custom_notes` = :custom_notes,
 						`custom_notes_show` = :custom_notes_show"
@@ -855,7 +876,11 @@ if ($page == 'customers'
 						} else {
 							$local_user = Settings::Get('phpfpm.vhost_httpuser');
 						}
-						$ins_data['members'] .= ','.$local_user;
+						// check froxlor-local user membership in ftp-group
+						// without this check addition may duplicate user in list if httpuser == local_user
+						if (strpos($ins_data['members'], $local_user) == false) {
+							$ins_data['members'] .= ','.$local_user;
+						}
 					}
 
 					Database::pexecute($ins_stmt, $ins_data);
@@ -885,7 +910,8 @@ if ($page == 'customers'
 							'customerid' => $customerid,
 							'adminid' => $userinfo['adminid'],
 							'docroot' => $documentroot,
-							'adddate' => date('Y-m-d')
+							'adddate' => time(),
+							'phpenabled' => $phpenabled
 						);
 						$ins_stmt = Database::prepare("
 							INSERT INTO `" . TABLE_PANEL_DOMAINS . "` SET
@@ -903,16 +929,20 @@ if ($page == 'customers'
 							`dkim_id` = '0',
 							`dkim_privkey` = '',
 							`dkim_pubkey` = '',
+							`phpenabled` = :phpenabled,
 							`add_date` = :adddate"
 						);
 						Database::pexecute($ins_stmt, $ins_data);
 						$domainid = Database::lastInsertId();
 
 						// set ip <-> domain connection
+						$defaultips = explode(',', Settings::Get('system.defaultip'));
 						$ins_stmt = Database::prepare("
-							INSERT INTO `".TABLE_DOMAINTOIP."` SET `id_domain` = :domainid, `id_ipandports` = :ipid"
+							  INSERT INTO `" . TABLE_DOMAINTOIP . "` SET `id_domain` = :domainid, `id_ipandports` = :ipid"
 						);
-						Database::pexecute($ins_stmt, array('domainid' => $domainid, 'ipid' => Settings::Get('system.defaultip')));
+						foreach ($defaultips as $defaultip) {
+							Database::pexecute($ins_stmt, array('domainid' => $domainid, 'ipid' => $defaultip));
+						}
 
 						$upd_stmt = Database::prepare("
 							UPDATE `" . TABLE_PANEL_CUSTOMERS . "` SET `standardsubdomain` = :domainid WHERE `customerid` = :customerid"
@@ -933,7 +963,9 @@ if ($page == 'customers'
 							SELECT ip, port FROM `".TABLE_PANEL_IPSANDPORTS."`
 							WHERE `id` = :defaultip
 						");
-						$srv_ip = Database::pexecute_first($srv_ip_stmt, array('defaultip' => Settings::Get('system.defaultip')));
+						$default_ips = Settings::Get('system.defaultip');
+						$default_ips = explode(',', $default_ips);
+						$srv_ip = Database::pexecute_first($srv_ip_stmt, array('defaultip' => reset($default_ips)));
 
 						$replace_arr = array(
 							'FIRSTNAME' => $firstname,
@@ -1178,6 +1210,11 @@ if ($page == 'customers'
 					$perlenabled = intval($_POST['perlenabled']);
 				}
 
+				$dnsenabled = 0;
+				if (isset($_POST['dnsenabled'])) {
+					$dnsenabled = intval($_POST['dnsenabled']);
+				}
+
 				$diskspace = $diskspace * 1024;
 				$traffic = $traffic * 1024 * 1024;
 
@@ -1201,7 +1238,6 @@ if ($page == 'customers'
 				   || ($subdomains == '-1' && $userinfo['subdomains'] != '-1')
 				) {
 					standard_error('youcantallocatemorethanyouhave');
-					exit;
 				}
 
 				// Either $name and $firstname or the $company must be inserted
@@ -1247,7 +1283,7 @@ if ($page == 'customers'
 								'customerid' => $result['customerid'],
 								'adminid' => $userinfo['adminid'],
 								'docroot' => $result['documentroot'],
-								'adddate' => date('Y-m-d')
+								'adddate' => time()
 						);
 						$ins_stmt = Database::prepare("
 							INSERT INTO `" . TABLE_PANEL_DOMAINS . "` SET
@@ -1268,10 +1304,13 @@ if ($page == 'customers'
 						$domainid = Database::lastInsertId();
 
 						// set ip <-> domain connection
+						$defaultips = explode(',', Settings::Get('system.defaultip'));
 						$ins_stmt = Database::prepare("
-							INSERT INTO `".TABLE_DOMAINTOIP."` SET `id_domain` = :domainid, `id_ipandports` = :ipid"
+							  INSERT INTO `" . TABLE_DOMAINTOIP . "` SET `id_domain` = :domainid, `id_ipandports` = :ipid"
 						);
-						Database::pexecute($ins_stmt, array('domainid' => $domainid, 'ipid' => Settings::Get('system.defaultip')));
+						foreach ($defaultips as $defaultip) {
+							Database::pexecute($ins_stmt, array('domainid' => $domainid, 'ipid' => $defaultip));
+						}
 
 						$upd_stmt = Database::prepare("
 							UPDATE `" . TABLE_PANEL_CUSTOMERS . "` SET `standardsubdomain` = :domainid WHERE `customerid` = :customerid"
@@ -1305,6 +1344,10 @@ if ($page == 'customers'
 
 					if ($perlenabled != '0') {
 						$perlenabled = '1';
+					}
+
+					if ($dnsenabled != '0') {
+						$dnsenabled = '1';
 					}
 
 					if ($phpenabled != $result['phpenabled']
@@ -1417,6 +1460,7 @@ if ($page == 'customers'
 						'imap' => $email_imap,
 						'pop3' => $email_pop3,
 						'perlenabled' => $perlenabled,
+						'dnsenabled' => $dnsenabled,
 						'custom_notes' => $custom_notes,
 						'custom_notes_show' => $custom_notes_show
 					);
@@ -1450,6 +1494,7 @@ if ($page == 'customers'
 						`imap` = :imap,
 						`pop3` = :pop3,
 						`perlenabled` = :perlenabled,
+						`dnsenabled` = :dnsenabled,
 						`custom_notes` = :custom_notes,
 						`custom_notes_show` = :custom_notes_show
 						WHERE `customerid` = :customerid"

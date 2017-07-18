@@ -20,6 +20,12 @@
 define('AREA', 'customer');
 $intrafficpage = 1;
 require './lib/init.php';
+
+// redirect if this customer page is hidden via settings
+if (Settings::IsInList('panel.customer_hide_options','traffic')) {
+	redirectTo('customer_index.php');
+}
+
 $traffic = '';
 $month = null;
 $year = null;
@@ -109,8 +115,7 @@ if (!is_null($month) && !is_null($year)) {
 	$result_stmt = Database::prepare("SELECT `month`, `year`, SUM(`http`) AS http, SUM(`ftp_up`) AS ftp_up, SUM(`ftp_down`) AS ftp_down, SUM(`mail`) AS mail
 		FROM `" . TABLE_PANEL_TRAFFIC . "`
 		WHERE `customerid` = :customerid
-		GROUP BY CONCAT(`year`,`month`)
-		ORDER BY CONCAT(`year`,`month`) DESC
+		GROUP BY `year` DESC, `month` DESC
 		LIMIT 12"
 	);
 	Database::pexecute($result_stmt, array("customerid" => $userinfo['customerid']));

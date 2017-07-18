@@ -39,11 +39,6 @@ header("X-XSS-Protection: 1; mode=block");
 // Don't allow to load Froxlor in an iframe to prevent i.e. clickjacking
 header("X-Frame-Options: DENY");
 
-// If Froxlor was called via HTTPS -> enforce it for the next time
-if (isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) {
-	header("Strict-Transport-Security: max-age=15768000");
-}
-
 // Internet Explorer shall not guess the Content-Type, see:
 // http://blogs.msdn.com/ie/archive/2008/07/02/ie8-security-part-v-comprehensive-protection.aspx
 header("X-Content-Type-Options: nosniff");
@@ -128,6 +123,24 @@ require FROXLOR_INSTALL_DIR.'/lib/tables.inc.php';
 $idna_convert = new idna_convert_wrapper();
 
 /**
+ * If Froxlor was called via HTTPS -> enforce it for the next time by settings HSTS header according to settings
+ */
+if (isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) != 'off')) {
+	$maxage = Settings::Get('system.hsts_maxage');
+	if (empty($maxage)) {
+		$maxage = 0;
+	}
+	$hsts_header = "Strict-Transport-Security: max-age=".$maxage;
+	if (Settings::Get('system.hsts_incsub') == '1') {
+		$hsts_header .= "; includeSubDomains";
+	}
+	if (Settings::Get('system.hsts_preload') == '1') {
+		$hsts_header .= "; preload";
+	}
+	header($hsts_header);
+}
+
+/**
  * disable magic_quotes_runtime if enabled
  */
 // since 5.4 get_magic_quotes_runtime() and get_magic_quotes_gpc() return always FALSE
@@ -142,7 +155,7 @@ if (version_compare(PHP_VERSION, "5.4.0", "<")) {
 	 */
 	if (get_magic_quotes_gpc()) {
 		$in = array(&$_GET, &$_POST, &$_COOKIE);
-	
+
 		while (list($k, $v) = each($in)) {
 			foreach ($v as $key => $val) {
 				if (!is_array($val)) {
@@ -265,7 +278,7 @@ while ($row = $result_stmt->fetch(PDO::FETCH_ASSOC)) {
 	// versions didn't have that and it will
 	// lead to a lot of undfined variables
 	// before the admin can even update
-	if (isset($row['iso'])) { 
+	if (isset($row['iso'])) {
 		$iso[$row['iso']] = $row['language'];
 	}
 }
@@ -275,7 +288,7 @@ foreach ($langs as $key => $value) {
 	$languages[$key] = $key;
 }
 
-// set default langauge before anything else to
+// set default language before anything else to
 // ensure that we can display messages
 $language = Settings::Get('panel.standardlanguage');
 
@@ -408,7 +421,7 @@ if (isset($userinfo['loginname'])
  */
 $navigation = "";
 if (AREA == 'admin' || AREA == 'customer') {
-	if (hasUpdates($version)) {
+	if (hasUpdates($version) || hasDbUpdates($dbversion)) {
 		/*
 		 * if froxlor-files have been updated
 		 * but not yet configured by the admin
@@ -505,11 +518,12 @@ if (array_key_exists('css', $_themeoptions['variants'][$themevariant]) && is_arr
 	}
 }
 eval("\$header = \"" . getTemplate('header', '1') . "\";");
-unset($js);
-unset($css);
 
 $current_year = date('Y', time());
 eval("\$footer = \"" . getTemplate('footer', '1') . "\";");
+
+unset($js);
+unset($css);
 
 if (isset($_POST['action'])) {
 	$action = $_POST['action'];
@@ -540,6 +554,18 @@ if ($page == '') {
  */
 $mail = new PHPMailer(true);
 $mail->CharSet = "UTF-8";
+
+if (Settings::Get('system.mail_use_smtp')) {
+	$mail->isSMTP();
+	$mail->Host = Settings::Get('system.mail_smtp_host');
+	$mail->SMTPAuth = Settings::Get('system.mail_smtp_auth') == '1' ? true : false;
+	$mail->Username = Settings::Get('system.mail_smtp_user');
+	$mail->Password = Settings::Get('system.mail_smtp_passwd');
+	if (Settings::Get('system.mail_smtp_usetls')) {
+		$mail->SMTPSecure = 'tls';
+	}
+	$mail->Port = Settings::Get('system.mail_smtp_port');
+}
 
 if (PHPMailer::ValidateAddress(Settings::Get('panel.adminmail')) !== false) {
 	// set return-to address and custom sender-name, see #76

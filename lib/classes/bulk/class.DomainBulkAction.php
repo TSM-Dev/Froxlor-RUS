@@ -93,6 +93,12 @@ class DomainBulkAction
 /* 16 */    'use_ssl',
 /* 17 */	'registration_date',
 /* 18 */	'ips',
+/* 19 */	'letsencrypt',
+/* 20 */	'hsts',
+/* 21 */	'hsts_sub',
+/* 22 */	'hsts_preload',
+/* 23 */	'ocsp_stapling',
+/* 24 */	'phpenabled',
 	    /* automatically added */
 		'adminid',
         'customerid',
@@ -200,7 +206,13 @@ class DomainBulkAction
 				`specialsettings` = :specialsettings,
 				`ssl_redirect` = :ssl_redirect,
 				`registration_date` = :registration_date,
-				`add_date` = :add_date
+				`add_date` = :add_date,
+				`letsencrypt` = :letsencrypt,
+				`hsts` = :hsts,
+				`hsts_sub` = :hsts_sub,
+				`hsts_preload` = :hsts_preload,
+				`ocsp_stapling` = :ocsp_stapling,
+				`phpenabled` = :phpenabled
 		");
         
         // prepare insert statement for ip/port <> domain
@@ -301,7 +313,7 @@ class DomainBulkAction
             ), '', $domain_data['aliasdomain']));
             // validate alias-domain
             if (! validateDomain($domain_data['aliasdomain'])) {
-                // invalid-domain lol - skip to be sure we dont add anything weird
+                // invalid-domain lol - skip to be sure we don't add anything weird
                 return false;
             }
             // does the domain we want to be an alias of exists?
@@ -335,6 +347,30 @@ class DomainBulkAction
             $domain_data['ssl_redirect'] = 0;
         }
         
+        // only check for letsencrypt, hsts and oscp-stapling if ssl is enabled
+        if ($domain_data['use_ssl'] == 1) {
+			//lets encrypt
+			if ($domain_data['letsencrypt'] != 1 || $domain_data['iswildcarddomain'] == 1) {
+				$domain_data['letsencrypt'] = 0;
+			}
+		} else {
+			$domain_data['letsencrypt'] = 0;
+		}
+
+		// hsts
+		if ($domain_data['hsts'] != 1) {
+			$domain_data['hsts'] = 0;
+		}
+		if ($domain_data['hsts_sub'] != 1) {
+			$domain_data['hsts_sub'] = 0;
+		}
+		if ($domain_data['hsts_preload'] != 1) {
+			$domain_data['hsts_preload'] = 0;
+		}
+		if ($domain_data['ocsp_stapling'] != 1) {
+			$domain_data['ocsp_stapling'] = 0;
+		}
+
         // add to known domains
         $this->_knownDomains[] = $domain_data['domain'];
         
@@ -409,12 +445,12 @@ class DomainBulkAction
         // write back iplist
         $iplist = implode(",", $result_iplist);
         
-        // dont need that for the domain-insert-statement
+        // don't need that for the domain-insert-statement
         unset($domain_data['ips']);
         
         // remember use_ssl value
         $use_ssl = (bool)$domain_data['use_ssl'];
-        // dont need that for the domain-insert-statement
+        // don't need that for the domain-insert-statement
         unset($domain_data['use_ssl']);
         
         // finally ADD the domain to panel_domains
@@ -480,7 +516,7 @@ class DomainBulkAction
                 $tmp_arr = explode($separator, $line);
                 $data_arr = array();
                 foreach ($tmp_arr as $idx => $data) {
-                    // dont include more fields that the ones we use
+                    // don't include more fields than the ones we use
                     if ($idx > (count($this->_required_fields) - 4)) // off-by-one + 3 auto-values
                         break;
                     $data_arr[$this->_required_fields[$idx]] = $data;

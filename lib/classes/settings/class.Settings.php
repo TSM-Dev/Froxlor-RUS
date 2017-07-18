@@ -86,6 +86,7 @@ class Settings {
 		while ($row = $result_stmt->fetch(PDO::FETCH_ASSOC)) {
 			self::$_data[$row['settinggroup']][$row['varname']] = $row['value'];
 		}
+		return true;
 	}
 
 	/**
@@ -125,6 +126,23 @@ class Settings {
 	}
 
 	/**
+	 * tests if a setting-value that i s a comma separated list contains an entry
+	 *
+	 * @param string $setting a group and a varname separated by a dot (group.varname)
+	 * @param string $entry the entry that is expected to be in the list
+	 *
+	 * @return boolean true, if the list contains $entry
+	 */
+	public function pIsInList($setting = null, $entry = null) {
+		$s=Settings::Get($setting);
+		if ($s==null) {
+			return false;
+		}
+		$slist = explode(",",$s);
+		return in_array($entry, $slist);
+	}
+
+	/**
 	 * update a setting / set a new value
 	 *
 	 * @param string $setting a group and a varname separated by a dot (group.varname)
@@ -144,10 +162,16 @@ class Settings {
 			if ($instant_save) {
 				$this->_storeSetting($sstr[0], $sstr[1], $value);
 			} else {
-				if (!is_array(self::$_data[$sstr[0]])) {
+				// set temporary data for usage
+				if (!isset(self::$_data[$sstr[0]]) || !is_array(self::$_data[$sstr[0]])) {
 					self::$_data[$sstr[0]] = array();
 				}
 				self::$_data[$sstr[0]][$sstr[1]] = $value;
+				// set update-data when invoking Flush()
+				if (!isset(self::$_updatedata[$sstr[0]]) || !is_array(self::$_updatedata[$sstr[0]])) {
+					self::$_updatedata[$sstr[0]] = array();
+				}
+				self::$_updatedata[$sstr[0]][$sstr[1]] = $value;
 			}
 			return true;
 		}
@@ -184,6 +208,8 @@ class Settings {
 					'value' => $value
 			);
 			Database::pexecute($ins_stmt, $ins_data);
+			// also set new value to internal array and make it available
+			self::$_data[$sstr[0]][$sstr[1]] = $value;
 			return true;
 		}
 		return false;
@@ -204,8 +230,9 @@ class Settings {
 			// now empty the array
 			self::$_updatedata = array();
 			// re-read in all settings
-			$this->_readSettings();
+			return $this->_readSettings();
 		}
+		return false;
 	}
 
 	/**

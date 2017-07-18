@@ -42,11 +42,6 @@ function includeFunctions($dirname)
 	closedir($dirhandle);
 }
 
-function exportDetails($fielddata, $newfieldvalue)
-{
-	print_r($newfieldvalue);
-}
-
 Autoloader::init();
 
 /**
@@ -98,6 +93,12 @@ class Autoloader {
 				dirname(dirname(__FILE__)) . '/scripts/',
 				dirname(dirname(__FILE__)) . '/install/',
 		);
+
+		if (substr($class, 0, 15) == "Mso\IdnaConvert") {
+			$class = substr($class, 16);
+			include_once __DIR__.'/classes/idna/ext/'.$class.'.php';
+			return true;
+		}
 
 		// now iterate through the paths
 		foreach ($paths as $path) {

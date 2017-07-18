@@ -29,20 +29,12 @@ return array(
 					'default' => '/etc/cron.d/froxlor',
 					'save_method' => 'storeSettingField',
 					),
-				'system_send_cron_errors' => array(
-					'label' => $lng['serversettings']['system_send_cron_errors'],
-					'settinggroup' => 'system',
-					'varname' => 'send_cron_errors',
-					'type' => 'bool',
-					'default' => false,
-					'save_method' => 'storeSettingField',
-				),
 				'system_croncmdline' => array(
 					'label' => $lng['serversettings']['system_croncmdline'],
 					'settinggroup' => 'system',
 					'varname' => 'croncmdline',
 					'type' => 'string',
-					'default' => '/usr/bin/nice -n 5 /usr/bin/php5 -q',
+					'default' => '/usr/bin/nice -n 5 /usr/bin/php -q',
 					'save_method' => 'storeSettingField',
 					),
 				'system_crondreload' => array(

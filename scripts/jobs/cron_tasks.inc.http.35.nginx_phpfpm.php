@@ -20,11 +20,15 @@ class nginx_phpfpm extends nginx
 	protected function composePhpOptions($domain, $ssl_vhost = false) {
 		$php_options_text = '';
 
-		if ($domain['phpenabled'] == '1') {
+		if ($domain['phpenabled_customer'] == 1 && $domain['phpenabled_vhost'] == '1') {
 			$php = new phpinterface($domain);
 			$phpconfig = $php->getPhpConfig((int)$domain['phpsettingid']);
 			
 			$php_options_text = "\t" . 'location ~ ^(.+?\.php)(/.*)?$ {' . "\n";
+			$php_options_text .= "\t\t" . 'try_files ' . $domain['nonexistinguri'] . ' @php;' . "\n";
+			$php_options_text .= "\t" . '}' . "\n\n";
+
+			$php_options_text .= "\t" . 'location @php {' . "\n";
 			$php_options_text .= "\t\t" . 'try_files $1 = 404;' . "\n\n";
 			$php_options_text .= "\t\t" . 'include ' . Settings::Get('nginx.fastcgiparams') . ";\n";
 			$php_options_text .= "\t\t" . 'fastcgi_split_path_info ^(.+\.php)(/.+)\$;' . "\n";

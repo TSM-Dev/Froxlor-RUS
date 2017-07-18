@@ -41,6 +41,12 @@ class FroxlorLogger {
 	static private $loggers = null;
 
 	/**
+	 * whether to output log-messages to STDOUT (cron)
+	 * @var bool
+	 */
+	static private $crondebug_flag = false;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param array userinfo
@@ -98,8 +104,14 @@ class FroxlorLogger {
 			return;
 		}
 
+		if (self::$crondebug_flag
+			|| ($action == CRON_ACTION && $type <= LOG_WARNING)) {
+			echo "[".getLogLevelDesc($type)."] ".$text.PHP_EOL;
+		}
+
 		if (Settings::Get('logger.log_cron') == '0'
-		   && $action == CRON_ACTION
+			&& $action == CRON_ACTION
+			&& $type > LOG_WARNING // warnings, errors and critical mesages WILL be logged
 		) {
 			return;
 		}
@@ -158,12 +170,21 @@ class FroxlorLogger {
 
 		$_cronlog = (int)$_cronlog;
 
-		if ($_cronlog != 0
-		   && $_cronlog != 1
-		) {
+		if ($_cronlog < 0 || $_cronlog > 2) {
 			$_cronlog = 0;
 		}
 		Settings::Set('logger.log_cron', $_cronlog);
-		return true;
+		return $_cronlog;
+	}
+
+	/**
+	 * setter for crondebug-flag
+	 *
+	 * @param bool $_flag
+	 *
+	 * @return void
+	 */
+	public function setCronDebugFlag($_flag = false) {
+	    self::$crondebug_flag = (bool)$_flag;
 	}
 }

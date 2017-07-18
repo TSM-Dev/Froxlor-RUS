@@ -58,6 +58,16 @@ class phpinterface_fpm {
 				'upload_max_filesize',
 				'xmlrpc_error_number',
 				'session.auto_start',
+				'always_populate_raw_post_data',
+				'suhosin.session.cryptkey',
+				'suhosin.session.cryptraddr',
+				'suhosin.session.checkraddr',
+				'suhosin.cookie.cryptkey',
+				'suhosin.cookie.plainlist',
+				'suhosin.cookie.cryptraddr',
+				'suhosin.cookie.checkraddr',
+				'suhosin.executor.func.blacklist',
+				'suhosin.executor.eval.whitelist'
 			),
 			'php_flag' => array(
 				'asp_tags',
@@ -73,7 +83,16 @@ class phpinterface_fpm {
 				'session.use_cookies',
 				'short_open_tag',
 				'track_errors',
-				'xmlrpc_errors'
+				'xmlrpc_errors',
+				'suhosin.simulation',
+				'suhosin.session.encrypt',
+				'suhosin.session.cryptua',
+				'suhosin.session.cryptdocroot',
+				'suhosin.cookie.encrypt',
+				'suhosin.cookie.cryptua',
+				'suhosin.cookie.cryptdocroot',
+				'suhosin.executor.disable_eval',
+				'mbstring.func_overload'
 			),
 			'php_admin_value' => array(
 				'cgi.redirect_status_env',
@@ -92,7 +111,13 @@ class phpinterface_fpm {
 				'sendmail_path',
 				'session.gc_divisor',
 				'session.gc_probability',
-				'variables_order'
+				'variables_order',
+				'opcache.log_verbosity_level',
+				'opcache.restrict_api',
+				'opcache.revalidate_freq',
+				'opcache.max_accelerated_files',
+				'opcache.memory_consumption',
+				'opcache.interned_strings_buffer'
 			),
 			'php_admin_flag' => array(
 				'allow_call_time_pass_reference',
@@ -108,7 +133,16 @@ class phpinterface_fpm {
 				'ignore_repeated_source',
 				'log_errors',
 				'register_argc_argv',
-				'report_memleaks'
+				'report_memleaks',
+				'opcache.enable',
+				'opcache.consistency_checks',
+				'opcache.dups_fix',
+				'opcache.load_comments',
+				'opcache.revalidate_path',
+				'opcache.save_comments',
+				'opcache.use_cwd',
+				'opcache.validate_timestamps',
+				'opcache.fast_shutdown'
 			)
 	);
 
@@ -178,7 +212,7 @@ class phpinterface_fpm {
 					$fpm_start_servers = $fpm_min_spare_servers;
 				}
 				if ($fpm_start_servers > $fpm_max_spare_servers) {
-					$fpm_start_servers = $fpm_start_servers - (($fpm_start_servers - $fpm_max_spare_servers) + 1);
+					$fpm_start_servers = $fpm_max_spare_servers;
 				}
 				$fpm_config.= 'pm.start_servers = '.$fpm_start_servers."\n";
 				$fpm_config.= 'pm.min_spare_servers = '.$fpm_min_spare_servers."\n";
@@ -233,22 +267,12 @@ class phpinterface_fpm {
 
 					$openbasedir .= appendOpenBasedirPath($this->getTempDir());
 					$openbasedir .= $_phpappendopenbasedir;
-
-					$openbasedir = explode(':', $openbasedir);
-					$clean_openbasedir = array();
-					foreach ($openbasedir as $number => $path) {
-						if (trim($path) != '/') {
-							$clean_openbasedir[] = makeCorrectDir($path);
-						}
-					}
-					$openbasedir = implode(':', $clean_openbasedir);
 				}
 			}
 			$fpm_config.= 'php_admin_value[session.save_path] = ' . makeCorrectDir(Settings::Get('phpfpm.tmpdir') . '/' . $this->_domain['loginname'] . '/') . "\n";
 			$fpm_config.= 'php_admin_value[upload_tmp_dir] = ' . makeCorrectDir(Settings::Get('phpfpm.tmpdir') . '/' . $this->_domain['loginname'] . '/') . "\n";
 
 			$admin = $this->_getAdminData($this->_domain['adminid']);
-
 			$php_ini_variables = array(
 					'SAFE_MODE' => 'Off', // keep this for compatibility, just in case
 					'PEAR_DIR' => Settings::Get('phpfpm.peardir'),
@@ -259,7 +283,9 @@ class phpinterface_fpm {
 					'CUSTOMER' => $this->_domain['loginname'],
 					'ADMIN' => $admin['loginname'],
 					'OPEN_BASEDIR' => $openbasedir,
-					'OPEN_BASEDIR_C' => ''
+					'OPEN_BASEDIR_C' => '',
+					'OPEN_BASEDIR_GLOBAL' => Settings::Get('system.phpappendopenbasedir'),
+					'DOCUMENT_ROOT' => makeCorrectDir($this->_domain['documentroot'])
 			);
 
 			$phpini = replace_variables($phpconfig['phpsettings'], $php_ini_variables);
@@ -329,7 +355,7 @@ class phpinterface_fpm {
 	public function getSocketFile($createifnotexists = true) {
 
 		$socketdir = makeCorrectDir(Settings::Get('phpfpm.fastcgi_ipcdir'));
-		$socket = makeCorrectFile($socketdir.'/'.$this->_domain['loginname'].'-'.$this->_domain['domain'].'-php-fpm.socket');
+		$socket = strtolower(makeCorrectFile($socketdir.'/'.$this->_domain['loginname'].'-'.$this->_domain['domain'].'-php-fpm.socket'));
 
 		if (!is_dir($socketdir) && $createifnotexists) {
 			safe_exec('mkdir -p '.escapeshellarg($socketdir));

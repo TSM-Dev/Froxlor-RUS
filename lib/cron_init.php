@@ -129,7 +129,7 @@ while ($fName = readdir($lockDirHandle)) {
 			//
 			fwrite($debugHandler, 'Previous cronjob didn\'t exit clean. PID: ' . $check_pid . "\n");
 			fwrite($debugHandler, 'Removing lockfile: ' . $lockdir . $fName . "\n");
-			unlink($lockdir . $fName);
+			@unlink($lockdir . $fName);
 
 		} else {
 			// Result:      A Cronscript with this pid
@@ -177,8 +177,7 @@ if (((int)Settings::Get('system.mod_fcgid') == 1 && (int)Settings::Get('system.m
 $cronlog = FroxlorLogger::getInstanceOf(array('loginname' => 'cronjob'));
 fwrite($debugHandler, 'Logger has been included' . "\n");
 
-if (Settings::Get('panel.version') == null
-	|| Settings::Get('panel.version') != $version
+if (hasUpdates($version) || hasDbUpdates($dbversion)
 ) {
 	if (Settings::Get('system.cron_allowautoupdate') == null
 		|| Settings::Get('system.cron_allowautoupdate') == 0
@@ -190,7 +189,7 @@ if (Settings::Get('panel.version') == null
 		unlink($lockfile);
 		$errormessage = "Version of file doesn't match version of database. Exiting...\n\n";
 		$errormessage.= "Possible reason: Froxlor update\n";
-		$errormessage.= "Information: Current version in database: ".Settings::Get('panel.version')." - version of Froxlor files: ".$version."\n";
+		$errormessage.= "Information: Current version in database: ".Settings::Get('panel.version')." (DB: ".Settings::Get('panel.db_version').") - version of Froxlor files: ".$version." (DB: ".$dbversion.")\n";
 		$errormessage.= "Solution: Please visit your Foxlor admin interface for further information.\n";
 		dieWithMail($errormessage);
 	}
@@ -201,11 +200,12 @@ if (Settings::Get('panel.version') == null
 		 */
 		$cronlog->logAction(CRON_ACTION, LOG_WARNING, 'Automatic update is activated and we are going to proceed without any notices');
 		$cronlog->logAction(CRON_ACTION, LOG_WARNING, 'all new settings etc. will be stored with the default value, that might not always be right for your system!');
-		$cronlog->logAction(CRON_ACTION, LOG_WARNING, 'If you dont want this to happen in the future consider removing the --allow-autoupdate flag from the cronjob');
+		$cronlog->logAction(CRON_ACTION, LOG_WARNING, "If you don't want this to happen in the future consider removing the --allow-autoupdate flag from the cronjob");
 		fwrite($debugHandler, '*** WARNING *** - Automatic update is activated and we are going to proceed without any notices' . "\n");
 		fwrite($debugHandler, '*** WARNING *** - all new settings etc. will be stored with the default value, that might not always be right for your system!' . "\n");
-		fwrite($debugHandler, '*** WARNING *** - If you dont want this to happen in the future consider removing the --allow-autoupdate flag from the cronjob' . "\n");
+		fwrite($debugHandler, "*** WARNING *** - If you don't want this to happen in the future consider removing the --allow-autoupdate flag from the cronjob\n");
 		// including update procedures
+		define('_CRON_UPDATE', 1);
 		include_once FROXLOR_INSTALL_DIR.'/install/updatesql.php';
 		// pew - everything went better than expected
 		$cronlog->logAction(CRON_ACTION, LOG_WARNING, 'Automatic update done - you should check your settings to be sure everything is fine');
@@ -219,6 +219,3 @@ $cronscriptDebug = (Settings::Get('system.debug_cron') == '1') ? true : false;
 
 // Create a new idna converter
 $idna_convert = new idna_convert_wrapper();
-
-// check for cron.d-generation task and create it if necessary
-checkCrondConfigurationFile();

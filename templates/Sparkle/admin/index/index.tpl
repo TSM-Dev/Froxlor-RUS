@@ -182,6 +182,18 @@ $header
 						</tr>
 					</tbody>
 				</table>
+				<else>
+				<table class="dboarditem full">
+					<tbody>
+						<tr><td>
+							<img src="templates/{$theme}/assets/img/icons/warning_big.png" alt="" />&nbsp;
+							{$lng['panel']['newsfeed_disabled']}&nbsp;
+							<a href="{$linker->getLink(array('section' => 'settings', 'part' => 'panel'))}">
+								<img src="templates/{$theme}/assets/img/icons/edit_20.png" alt="" />
+							</a>
+						</td></tr>
+					</tbody>
+				</table>
 				</if>
 
 				<if $userinfo['custom_notes'] != '' && $userinfo['custom_notes_show'] == '1'>
@@ -200,6 +212,10 @@ $header
 					</thead>
 					<tbody>
 						<tr>
+							<td>{$lng['admin']['hostname']}:</td>
+							<td>{$system_hostname}</td>
+						</tr>
+						<tr>
 							<td>{$lng['admin']['serversoftware']}:</td>
 							<td>{$_SERVER['SERVER_SOFTWARE']}</td>
 						</tr>
@@ -214,6 +230,10 @@ $header
 						<tr>
 							<td>{$lng['admin']['webserverinterface']}:</td>
 							<td>$webserverinterface</td>
+						</tr>
+						<tr>
+							<td>{$lng['admin']['memory']}:</td>
+							<td><pre>$memory</pre></td>
 						</tr>
 						<tr>
 							<td>{$lng['admin']['sysload']}:</td>
@@ -245,7 +265,7 @@ $header
 						{$cron_last_runs}
 						<tr>
 							<td>{$lng['admin']['installedversion']}:</td>
-							<td>{$version}{$branding}</td>
+							<td>{$version}{$branding} (DB: {$dbversion})</td>
 						</tr>
 						<tr>
 							<td>{$lng['admin']['latestversion']}:</td>

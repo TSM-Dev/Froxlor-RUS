@@ -42,7 +42,6 @@ if ($action == 'logout')  {
 	Database::pexecute($stmt, $params);
 
 	redirectTo('index.php');
-	exit;
 }
 
 if (isset($_POST['id'])) {
@@ -145,6 +144,15 @@ if ($page == 'overview') {
 	$cron_last_runs = getCronjobsLastRun();
 	$outstanding_tasks = getOutstandingTasks();
 
+	$system_hostname = gethostname();
+	$meminfo= explode("\n", @file_get_contents("/proc/meminfo"));
+	$memory = "";
+	for ($i = 0; $i < sizeof($meminfo); ++$i) {
+		if (substr($meminfo[$i], 0, 3) === "Mem") {
+			$memory.= $meminfo[$i] . PHP_EOL;
+		}
+	}
+
 	if (function_exists('sys_getloadavg')) {
 		$loadArray = sys_getloadavg();
 		$load = number_format($loadArray[0], 2, '.', '') . " / " . number_format($loadArray[1], 2, '.', '') . " / " . number_format($loadArray[2], 2, '.', '');
@@ -201,7 +209,6 @@ if ($page == 'overview') {
 
 		if (!validatePasswordLogin($userinfo,$old_password,TABLE_PANEL_ADMINS,'adminid')) {
 			standard_error('oldpasswordnotcorrect');
-			exit;
 		}
 
 		$new_password = validate($_POST['new_password'], 'new password');
@@ -362,7 +369,8 @@ if ($page == 'overview') {
 			$mail_body .= "File: ".$_error['file'].':'.$_error['line']."\n\n";
 			$mail_body .= "Trace:\n".trim($_error['trace'])."\n\n";
 			$mail_body .= "-------------------------------------------------------------\n\n";
-			$mail_body .= "Froxlor-version: ".$version."\n\n";
+			$mail_body .= "Froxlor-version: ".$version."\n";
+			$mail_body .= "DB-version: ".$dbversion."\n\n";
 			$mail_body .= "End of report";
 			$mail_html = nl2br($mail_body);
 

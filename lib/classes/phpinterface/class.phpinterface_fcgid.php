@@ -135,15 +135,6 @@ class phpinterface_fcgid {
 			$openbasedir .= appendOpenBasedirPath($this->getTempDir());
 			$openbasedir .= $_phpappendopenbasedir;
 
-			$openbasedir = explode(':', $openbasedir);
-			$clean_openbasedir = array();
-			foreach ($openbasedir as $number => $path) {
-				if (trim($path) != '/') {
-					$clean_openbasedir[] = makeCorrectDir($path);
-				}
-			}
-			$openbasedir = implode(':', $clean_openbasedir);
-
 		} else {
 			$openbasedir = 'none';
 			$openbasedirc = ';';
@@ -153,26 +144,26 @@ class phpinterface_fcgid {
 		$php_ini_variables = array(
 				'SAFE_MODE' => 'Off', // keep this for compatibility, just in case
 				'PEAR_DIR' => Settings::Get('system.mod_fcgid_peardir'),
-				'OPEN_BASEDIR' => $openbasedir,
-				'OPEN_BASEDIR_C' => $openbasedirc,
-				'OPEN_BASEDIR_GLOBAL' => Settings::Get('system.hpappendopenbasedir'),
 				'TMP_DIR' => $this->getTempDir(),
 				'CUSTOMER_EMAIL' => $this->_domain['email'],
 				'ADMIN_EMAIL' => $admin['email'],
 				'DOMAIN' => $this->_domain['domain'],
 				'CUSTOMER' => $this->_domain['loginname'],
-				'ADMIN' => $admin['loginname']
+				'ADMIN' => $admin['loginname'],
+				'OPEN_BASEDIR' => $openbasedir,
+				'OPEN_BASEDIR_C' => $openbasedirc,
+				'OPEN_BASEDIR_GLOBAL' => Settings::Get('system.phpappendopenbasedir'),
+				'DOCUMENT_ROOT' => makeCorrectDir($this->_domain['documentroot'])
 		);
 
 		//insert a small header for the file
-
 		$phpini_file = ";\n";
 		$phpini_file.= "; php.ini created/changed on " . date("Y.m.d H:i:s") . " for domain '" . $this->_domain['domain'] . "' with id #" . $this->_domain['id'] . " from php template '" . $phpconfig['description'] . "' with id #" . $phpconfig['id'] . "\n";
 		$phpini_file.= "; Do not change anything in this file, it will be overwritten by the Froxlor Cronjob!\n";
 		$phpini_file.= ";\n\n";
 		$phpini_file.= replace_variables($phpconfig['phpsettings'], $php_ini_variables);
 		$phpini_file = str_replace('"none"', 'none', $phpini_file);
-		$phpini_file = preg_replace('/\"+/', '"', $phpini_file);
+		//$phpini_file = preg_replace('/\"+/', '"', $phpini_file);
 		$phpini_file_handler = fopen($this->getIniFile(), 'w');
 		fwrite($phpini_file_handler, $phpini_file);
 		fclose($phpini_file_handler);

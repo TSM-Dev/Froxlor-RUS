@@ -282,7 +282,7 @@ $lng['admin']['admin_edit'] = 'Modifica admin';
 $lng['admin']['customers_see_all'] = 'Può vedere tutti i clienti?';
 $lng['admin']['domains_see_all'] = 'Può vedere tutti i domini?';
 $lng['admin']['change_serversettings'] = 'Può cambiare le impostazioni del server?';
-$lng['admin']['server'] = 'Server';
+$lng['admin']['server'] = 'Sistema';
 $lng['admin']['serversettings'] = 'Opzioni';
 $lng['admin']['rebuildconf'] = 'Rigenera configurazione';
 $lng['admin']['stdsubdomain'] = 'Sottodominio standard';
@@ -336,8 +336,6 @@ $lng['serversettings']['bindconf_directory']['title'] = 'Cartella configurazione
 $lng['serversettings']['bindconf_directory']['description'] = 'Dove sono i file di configurazione per Bind?';
 $lng['serversettings']['bindreload_command']['title'] = 'Comando riavvio Bind';
 $lng['serversettings']['bindreload_command']['description'] = 'Qual\'è il comando per riavviare Bind?';
-$lng['serversettings']['binddefaultzone']['title'] = 'Zona di default Bind';
-$lng['serversettings']['binddefaultzone']['description'] = 'Qual\'è il nome della zona di default Bind?';
 $lng['serversettings']['vmail_uid']['title'] = 'UID Email';
 $lng['serversettings']['vmail_uid']['description'] = 'Che UserID dovrebbe avere l\'utente che gestisce le Email?';
 $lng['serversettings']['vmail_gid']['title'] = 'GID Email';
@@ -424,7 +422,7 @@ $lng['serversettings']['defaultip']['title'] = 'IP/Porta default';
 $lng['serversettings']['defaultip']['description'] = 'Qual\'è la combinazione IP/Porta default?';
 $lng['domains']['statstics'] = 'Statistiche d\'utilizzo';
 $lng['panel']['ascending'] = 'ascendente';
-$lng['panel']['decending'] = 'discendente';
+$lng['panel']['descending'] = 'discendente';
 $lng['panel']['search'] = 'Cerca';
 $lng['panel']['used'] = 'utilizzato';
 
@@ -437,7 +435,7 @@ $lng['panel']['translator'] = 'Traduttore';
 $lng['error']['stringformaterror'] = 'Il valore per il campo "%s" non è nel formato atteso.';
 
 // ADDED IN 1.2.15-rc1
-// Translated by marone42@googlemail.com on 03/15/2007 (see https://trac.froxlor.org/ticket/126#comment:21)
+// Translated by marone42@googlemail.com on 03/15/2007
 
 $lng['admin']['phpversion'] = 'Versione PHP';
 $lng['admin']['mysqlserverversion'] = 'Versione MySQL Server';
@@ -716,7 +714,6 @@ $lng['error']['logerror'] = 'Errore Log: %s';
 $lng['serversettings']['logger']['logcron'] = 'Log cronjobs (one run)';
 $lng['question']['logger_reallytruncate'] = 'Sei sicuro di voler troncare la tabella "%s"?';
 $lng['admin']['loggersystem'] = 'Log di Sistema';
-$lng['menue']['logger']['logger'] = 'Log di Sistema';
 $lng['logger']['date'] = 'Data';
 $lng['logger']['type'] = 'Tipo';
 $lng['logger']['action'] = 'Azione';
@@ -1053,7 +1050,7 @@ $lng['dkim']['dkim_notes']['description'] = 'Nota potrebbe essere di interesse, 
 $lng['dkim']['dkim_add_adsp']['title'] = 'Aggiungi un valore DKIM ADSP';
 $lng['dkim']['dkim_add_adsp']['description'] = 'Se non si sa di cosa si tratta, lasciare "enabled"';
 $lng['dkim']['dkim_add_adsppolicy']['title'] = 'Regola ADSP';
-$lng['dkim']['dkim_add_adsppolicy']['description'] = 'Per ulteriori informazioni su questa impostazione leggere <a target="blank" href="http://redmine.froxlor.org/projects/froxlor/wiki/En-dkim-adsp-policies">DKIM ADSP policies</a>';
+$lng['dkim']['dkim_add_adsppolicy']['description'] = 'Per ulteriori informazioni su questa impostazione leggere <a target="blank" href="https://en.wikipedia.org/wiki/Author_Domain_Signing_Practices">DKIM ADSP policies</a>';
 
 $lng['admin']['cron']['cronsettings'] = 'Impostazioni Cronjob';
 $lng['cron']['cronname'] = 'Nome cronjob';
@@ -1174,7 +1171,7 @@ $lng['serversettings']['perl_path']['description'] = 'Rilevante solo se si utili
 // ADDED IN FROXLOR 0.9.12-svn1
 $lng['admin']['fcgid_settings'] = 'FCGID';
 $lng['serversettings']['mod_fcgid_ownvhost']['title'] = 'Abilita FCGID per i vhost Froxlor';
-$lng['serversettings']['mod_fcgid_ownvhost']['description'] = 'Se attivato, Froxlor verrà eseguito con un utente locale<br /><strong>ATTENZIONE:</strong>Questo richiede una configurazione manuale, vedi <a target="blank" href="http://redmine.froxlor.org/projects/froxlor/wiki/HandbookApache2_fcgid">FCGID - handbook</a>';
+$lng['serversettings']['mod_fcgid_ownvhost']['description'] = 'Se attivato, Froxlor verrà eseguito con un utente locale<br /><strong>ATTENZIONE:</strong>Questo richiede una configurazione manuale, vedi <a target="blank" href="https://github.com/Froxlor/Froxlor/wiki/apache2-with-fcgid">FCGID - handbook</a>';
 $lng['admin']['mod_fcgid_user'] = 'Utente locale per FCGID (Froxlor vhost)';
 $lng['admin']['mod_fcgid_group'] = 'Gruppo locale per FCGID (Froxlor vhost)';
 
@@ -1330,7 +1327,7 @@ $lng['error']['ticketnotaccessible'] = 'Non puoi accedere a questo ticket.';
 $lng['question']['admin_customer_alsoremovemail'] = 'Eliminare completamente i dati della posta elettronica dal filesystem??';
 $lng['question']['admin_customer_alsoremoveftphomedir'] = 'Rimuovere anche la cartella homedir dell\'utente FTP?';
 $lng['admin']['templates']['SALUTATION'] = 'Sostituito con un saluto corretto (nome o azienda)';
-$$lng['admin']['templates']['COMPANY'] = 'Sostituisce con il nome dell \'azienda del cliente';
+$lng['admin']['templates']['COMPANY'] = 'Sostituisce con il nome dell \'azienda del cliente';
 $lng['serversettings']['bindenable']['title'] = 'Abilita Nameserver';
 $lng['serversettings']['bindenable']['description'] = 'Qui il Nameserver può essere abilitato e disabilitato globalmente.';
 $lng['admin']['serversoftware'] = 'Software per Server';
@@ -1364,7 +1361,7 @@ $lng['admin']['store_defaultindex'] = 'Archivio del file indice predefinito al p
 $lng['admin']['ipsandports']['ssl_cert_chainfile']['title'] = 'Percorso al file catena dei certificati SSL';
 $lng['admin']['ipsandports']['ssl_cert_chainfile']['description'] = 'Principalmente Bundle CA, o similare, presubilmente vuoi impostare questo se hai acquistato un certificato SSL.';
 $lng['serversettings']['phpfpm']['title'] = 'Abilita php-fpm';
-$lng['serversettings']['phpfpm']['description'] = '<b>Questa impostazione richiede una configurazione speciale del server web. Vedi il manuale FPM per <a target="blank" href="http://redmine.froxlor.org/projects/froxlor/wiki/HandbookApache2_phpfpm">Apache2</a> o <a target="blank" href="http://redmine.froxlor.org/projects/froxlor/wiki/HandbookNginx_phpfpm">nginx</a></b>';
+$lng['serversettings']['phpfpm']['description'] = '<b>Questa impostazione richiede una configurazione speciale del server web. Vedi il manuale FPM per <a target="blank" href="https://github.com/Froxlor/Froxlor/wiki/apache2-with-php-fpm">Apache2</a> o <a target="blank" href="https://github.com/Froxlor/Froxlor/wiki/nginx-with-php-fpm">nginx</a></b>';
 $lng['serversettings']['phpfpm_settings']['aliasconfigdir'] = 'Configurazione cartella Alias per php-fpm';
 $lng['gender']['title'] = 'Titolo';
 $lng['gender']['male'] = 'Sig.';
@@ -1798,9 +1795,7 @@ $lng['domains']['import_file'] = 'File CSV';
 $lng['success']['domain_import_successfully'] = 'Importato %s dominii con successo.';
 $lng['error']['domain_import_error'] = 'Il seguente errore è occorsonell \'importazione di dominii: %s';
 $lng['admin']['note'] = 'Nota';
-$lng['domains']['import_description'] = 'Per ottenere informazioni dettagliate sulla struttura del file di importazione e  su come importare con successo, visita <a href="http://redmine.froxlor.org/projects/froxlor/wiki/DomainBulkActionDoc" target="_blank">http://redmine.froxlor.org/projects/froxlor/wiki/DomainBulkActionDoc</a>';
+$lng['domains']['import_description'] = 'Per ottenere informazioni dettagliate sulla struttura del file di importazione e  su come importare con successo, visita <a href="https://github.com/Froxlor/Froxlor/wiki/Domain-import-documenation" target="_blank">https://github.com/Froxlor/Froxlor/wiki/Domain-import-documenation</a>';
 $lng['usersettings']['custom_notes']['title'] = 'Note personali';
 $lng['usersettings']['custom_notes']['description'] = 'Sentiti libero di inserire qualsi nota vuoi o necessiti qui. Apparirano nel riepilogo dell\'amministratore/cliente perl \'utente corrispondente.';
 $lng['usersettings']['custom_notes']['show'] = 'Mostra le tue note nel cruscotto dell\'utente';
-$lng['serversettings']['system_send_cron_errors']['title'] = 'Inviaa gli errori cron all \'amministratore di froxlor via e-mail';
-$lng['serversettings']['system_send_cron_errors']['description'] = 'Scegli se ricevere una email sugli errori di cronjob. Ricorda che questo potrebbe causare l\'invio di una mail ogni 5 minuti in dipendenza all \'errore e alle tue impostazioni di cronjob.';

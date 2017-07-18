@@ -69,13 +69,13 @@ if ($action == 'login') {
 			}
 		}
 
-		if (hasUpdates($version) && $is_admin == false) {
+		if ((hasUpdates($version) || hasDbUpdates($dbversion)) && $is_admin == false) {
 			redirectTo('index.php');
 			exit;
 		}
 
 		if ($is_admin) {
-			if (hasUpdates($version)) {
+			if (hasUpdates($version) || hasDbUpdates($dbversion)) {
 				$stmt = Database::prepare("SELECT `loginname` AS `admin` FROM `" . TABLE_PANEL_ADMINS . "`
 					WHERE `loginname`= :loginname
 					AND `change_serversettings` = '1'"
@@ -119,7 +119,7 @@ if ($action == 'login') {
 			redirectTo('index.php', array('showmessage' => '3'));
 			exit;
 		} elseif (validatePasswordLogin($userinfo, $password, $table, $uid)) {
-		    // only show "you're banned" if the login was successfull
+		    // only show "you're banned" if the login was successful
 		    // because we don't want to publish that the user does exist
 		    if ($userinfo['deactivated']) {
 		        unset($userinfo);
@@ -222,11 +222,15 @@ if ($action == 'login') {
 			$qryparams['s'] = $s;
 
 			if ($userinfo['adminsession'] == '1') {
-				if (hasUpdates($version)) {
+				if (hasUpdates($version) || hasDbUpdates($dbversion)) {
 					redirectTo('admin_updates.php', array('s' => $s));
 				} else {
 					if (isset($_POST['script']) && $_POST['script'] != "") {
-						redirectTo($_POST['script'], $qryparams);
+						if (preg_match("/customer\_/", $_POST['script']) === 1) {
+							redirectTo('admin_customers.php', array("page" => "customers"));
+						} else {
+							redirectTo($_POST['script'], $qryparams);
+						}
 					} else {
 						redirectTo('admin_index.php', $qryparams);
 					}
@@ -283,7 +287,7 @@ if ($action == 'login') {
 		}
 
 		$update_in_progress = '';
-		if (hasUpdates($version)) {
+		if (hasUpdates($version) || hasDbUpdates($dbversion)) {
 			$update_in_progress = $lng['update']['updateinprogress_onlyadmincanlogin'];
 		}
 		
@@ -298,7 +302,7 @@ if ($action == 'login') {
 		}
 		$lastqrystr = "";
 		if (isset($_REQUEST['qrystr']) && $_REQUEST['qrystr'] != "") {
-			$lastqrystr = strip_tags($_REQUEST['qrystr']);
+			$lastqrystr = htmlspecialchars($_REQUEST['qrystr'], ENT_QUOTES);
 		}
 
 		eval("echo \"" . getTemplate('login') . "\";");
@@ -345,8 +349,8 @@ if ($action == 'forgotpwd') {
 				if ($user !== false) {
 					// build a activation code
 					$timestamp = time();
-					$first = substr(md5($user['loginname'] . $timestamp . rand(0, $timestamp)), 0, 15);
-					$third = substr(md5($user['email'] . $timestamp . rand(0, $timestamp)), -15);
+					$first = substr(md5($user['loginname'] . $timestamp . randomStr(16)), 0, 15);
+					$third = substr(md5($user['email'] . $timestamp . randomStr(16)), -15);
 					$activationcode = $first . $timestamp . $third . substr(md5($third . $timestamp), 0, 10);
 
 					// Drop all existing activation codes for this user

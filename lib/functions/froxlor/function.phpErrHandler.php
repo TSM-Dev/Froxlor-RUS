@@ -11,7 +11,7 @@
  *
  * @return void|boolean
  */
-function phpErrHandler($errno, $errstr, $errfile, $errline, array $errcontext) {
+function phpErrHandler($errno, $errstr, $errfile, $errline, $errcontext) {
 
 	if (!(error_reporting() & $errno)) {
 		// This error code is not included in error_reporting
@@ -25,6 +25,8 @@ function phpErrHandler($errno, $errstr, $errfile, $errline, array $errcontext) {
 		if (empty($theme)) {
 			$theme = "Sparkle";
 		}
+		// prevent possible file-path-disclosure
+		$errfile = str_replace(FROXLOR_INSTALL_DIR, "", $errfile);
 		// if we're not on the shell, output a nicer error-message
 		$err_hint = file_get_contents(FROXLOR_INSTALL_DIR.'/templates/'.$theme.'/misc/phperrornice.tpl');
 		// replace values

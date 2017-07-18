@@ -30,11 +30,12 @@ if ($page == 'log'
 			'user' => $lng['logger']['user'],
 			'text' => $lng['logger']['action']
 		);
-		$paging = new paging($userinfo, TABLE_PANEL_LOG, $fields, null, null, 0, 'desc');
-		$result_stmt = Database::query('
-			SELECT * FROM `' . TABLE_PANEL_LOG . '` ' . $paging->getSqlWhere(false) . ' ' . $paging->getSqlOrderBy() . ' ' . $paging->getSqlLimit()
-		);
-		$paging->setEntries(Database::num_rows());
+		$paging = new paging($userinfo, TABLE_PANEL_LOG, $fields, null, null, 0, 'desc', 30);
+		$query = 'SELECT * FROM `' . TABLE_PANEL_LOG . '` ' . $paging->getSqlWhere(false) . ' ' . $paging->getSqlOrderBy();
+		$result_stmt = Database::query($query . ' ' . $paging->getSqlLimit());
+		$result_cnt_stmt = Database::query($query);
+		$logs_count = $result_cnt_stmt->rowCount();
+		$paging->setEntries($logs_count);
 		$sortcode = $paging->getHtmlSortCode($lng);
 		$arrowcode = $paging->getHtmlArrowCode($filename . '?page=' . $page . '&s=' . $s);
 		$searchcode = $paging->getHtmlSearchCode($lng);
@@ -66,7 +67,7 @@ if ($page == 'log'
 		foreach ($clog as $action => $logrows) {
 			$_action = 0;
 			foreach ($logrows as $row) {
-				if ($paging->checkDisplay($i)) {
+				// if ($paging->checkDisplay($i)) {
 					$row = htmlentities_array($row);
 					$row['date'] = date("d.m.y H:i:s", $row['date']);
 
@@ -100,35 +101,12 @@ if ($page == 'log'
 					}
 
 					$log_count++;
-					$type = $row['type'];
-					$_type = 'unknown';
-
-					switch ($type) {
-						case LOG_INFO:
-							$_type = 'Information';
-							break;
-						case LOG_NOTICE:
-							$_type = 'Notice';
-							break;
-						case LOG_WARNING:
-							$_type = 'Warning';
-							break;
-						case LOG_ERR:
-							$_type = 'Error';
-							break;
-						case LOG_CRIT:
-							$_type = 'Critical';
-							break;
-						default:
-							$_type = 'Unknown';
-							break;
-					}
-
-					$row['type'] = $_type;
+					$row['type'] = getLogLevelDesc($row['type']);
 					eval("\$log.=\"" . getTemplate('logger/logger_log') . "\";");
 					$count++;
 					$_action = $action;
-				}
+				// }
+				$i++;
 			}
 			$i++;
 		}

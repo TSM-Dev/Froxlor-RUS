@@ -20,6 +20,11 @@
 define('AREA', 'customer');
 require './lib/init.php';
 
+// redirect if this customer page is hidden via settings
+if (Settings::IsInList('panel.customer_hide_options','email')) {
+	redirectTo('customer_index.php');
+}
+
 if (isset($_POST['id'])) {
 	$id = intval($_POST['id']);
 } elseif (isset($_GET['id'])) {
@@ -200,7 +205,8 @@ if ($page == 'overview') {
 		if ($userinfo['emails_used'] < $userinfo['emails'] || $userinfo['emails'] == '-1') {
 			if (isset($_POST['send']) && $_POST['send'] == 'send') {
 				$email_part = $_POST['email_part'];
-				$domain = $idna_convert->encode(validate($_POST['domain'], 'domain'));
+				// domain does not need idna encoding as the value of the select-box is already Punycode
+				$domain = validate($_POST['domain'], 'domain');
 				$stmt = Database::prepare("SELECT `id`, `domain`, `customerid` FROM `" . TABLE_PANEL_DOMAINS . "`
 					WHERE `domain`= :domain
 					AND `customerid`= :customerid
@@ -244,7 +250,6 @@ if ($page == 'overview') {
 					standard_error('emailexistalready', $email_full);
 				} elseif ($email_check['email'] == $email) {
 					standard_error('youhavealreadyacatchallforthisdomain');
-					exit;
 				} else {
 					$stmt = Database::prepare("INSERT INTO `" . TABLE_MAIL_VIRTUAL . "`
 						(`customerid`, `email`, `email_full`, `iscatchall`, `domainid`)
@@ -377,7 +382,6 @@ if ($page == 'overview') {
 
 					if ($email_check['email'] == $email) {
 						standard_error('youhavealreadyacatchallforthisdomain');
-						exit;
 					} else {
 						$stmt = Database::prepare("UPDATE `" . TABLE_MAIL_VIRTUAL . "`
 							SET `email` = :email , `iscatchall` = '1'
@@ -414,10 +418,11 @@ if ($page == 'overview') {
 				standard_error('notallowedtouseaccounts');
 			}
 
-			$stmt = Database::prepare("SELECT `id`, `email`, `email_full`, `iscatchall`, `destination`, `customerid`, `popaccountid`, `domainid` FROM `" . TABLE_MAIL_VIRTUAL . "`
-				WHERE `customerid`= :cid
-				AND `id`= :id"
-			);
+			$stmt = Database::prepare("
+			    SELECT `id`, `email`, `email_full`, `iscatchall`, `destination`, `customerid`, `popaccountid`, `domainid`
+			    FROM `" . TABLE_MAIL_VIRTUAL . "`
+			    WHERE `customerid`= :cid AND `id`= :id
+			");
 			$result = Database::pexecute_first($stmt, array("cid" => $userinfo['customerid'], "id" => $id));
 
 			if (isset($result['email']) && $result['email'] != '' && $result['popaccountid'] == '0') {
@@ -461,7 +466,9 @@ if ($page == 'overview') {
 						$maildirname=trim(Settings::Get('system.vmail_maildirname'));
 						// Add trailing slash to Maildir if needed
 						$maildirpath=$maildirname;
-						if (!empty($maildirname) and substr($maildirname,-1) != "/") $maildirpath.="/";
+						if (!empty($maildirname) && substr($maildirname,-1) != "/") {
+							$maildirpath.="/";
+						}
 
 						$stmt = Database::prepare("INSERT INTO `" . TABLE_MAIL_USERS . "`
 							(`customerid`, `email`, `username`, " . (Settings::Get('system.mailpwcleartext') == '1' ? '`password`, ' : '') . " `password_enc`, `homedir`, `maildir`, `uid`, `gid`, `domainid`, `postfix`, `quota`, `imap`, `pop3`) ".
@@ -595,7 +602,7 @@ if ($page == 'overview') {
 
 							if ($_mailerror) {
 								$log->logAction(USR_ACTION, LOG_ERR, "Error sending mail: " . $mailerr_msg);
-								standard_error(array('errorsendingmail', $alternative_email));
+								standard_error(array('errorsendingmail'), $alternative_email);
 							}
 
 							$mail->ClearAddresses();
@@ -604,6 +611,11 @@ if ($page == 'overview') {
 						redirectTo($filename, array('page' => 'emails', 'action' => 'edit', 'id' => $id, 's' => $s));
 					}
 				} else {
+
+					if (checkMailAccDeletionState($result['email_full'])) {
+					   standard_error(array('mailaccistobedeleted'), $result['email_full']);
+					}
+
 					$result['email_full'] = $idna_convert->decode($result['email_full']);
 					$result = htmlentities_array($result);
 					$quota = Settings::Get('system.mail_quota');
@@ -633,11 +645,9 @@ if ($page == 'overview') {
 
 				if ($password == '') {
 					standard_error(array('stringisempty', 'mypassword'));
-					exit;
 				}
 				elseif ($password == $result['email_full']) {
 					standard_error('passwordshouldnotbeusername');
-					exit;
 				}
 
 				$password = validatePassword($password);

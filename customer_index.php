@@ -40,7 +40,6 @@ if ($action == 'logout') {
 	Database::pexecute($stmt, $params);
 
 	redirectTo('index.php');
-	exit;
 }
 
 if ($page == 'overview') {
@@ -79,8 +78,15 @@ if ($page == 'overview') {
 	$yesterday = time() - (60 * 60 * 24);
 	$month = date('M Y', $yesterday);
 
+	// get disk-space usages for web, mysql and mail
+	$usages_stmt = Database::prepare("SELECT * FROM `".TABLE_PANEL_DISKSPACE."` WHERE `customerid` = :cid ORDER BY `stamp` DESC LIMIT 1");
+	$usages = Database::pexecute_first($usages_stmt, array('cid' => $userinfo['customerid']));
+
 	$userinfo['diskspace'] = round($userinfo['diskspace'] / 1024, Settings::Get('panel.decimal_places'));
-	$userinfo['diskspace_used'] = round($userinfo['diskspace_used'] / 1024, Settings::Get('panel.decimal_places'));
+	$userinfo['diskspace_used'] = round($usages['webspace'] / 1024, Settings::Get('panel.decimal_places'));
+	$userinfo['mailspace_used'] = round($usages['mail'] / 1024, Settings::Get('panel.decimal_places'));
+	$userinfo['dbspace_used'] = round($usages['mysql'] / 1024, Settings::Get('panel.decimal_places'));
+
 	$userinfo['traffic'] = round($userinfo['traffic'] / (1024 * 1024), Settings::Get('panel.decimal_places'));
 	$userinfo['traffic_used'] = round($userinfo['traffic_used'] / (1024 * 1024), Settings::Get('panel.decimal_places'));
 	$userinfo = str_replace_array('-1', $lng['customer']['unlimited'], $userinfo, 'diskspace traffic mysqls emails email_accounts email_forwarders email_quota ftps tickets subdomains');
@@ -101,7 +107,6 @@ if ($page == 'overview') {
 		$old_password = validate($_POST['old_password'], 'old password');
 		if (!validatePasswordLogin($userinfo,$old_password,TABLE_PANEL_CUSTOMERS,'customerid')) {
 			standard_error('oldpasswordnotcorrect');
-			exit;
 		}
 
 		$new_password = validatePassword($_POST['new_password'], 'new password');
@@ -269,7 +274,8 @@ if ($page == 'overview') {
 			$mail_body .= "File: ".$_error['file'].':'.$_error['line']."\n\n";
 			$mail_body .= "Trace:\n".trim($_error['trace'])."\n\n";
 			$mail_body .= "-------------------------------------------------------------\n\n";
-			$mail_body .= "Froxlor-version: ".$version."\n\n";
+			$mail_body .= "Froxlor-version: ".$version."\n";
+			$mail_body .= "DB-version: ".$dbversion."\n\n";
 			$mail_body .= "End of report";
 			$mail_html = str_replace("\n", "<br />", $mail_body);
 
